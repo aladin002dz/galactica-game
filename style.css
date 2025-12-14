@@ -1,0 +1,53 @@
+/* Galactic theme styling */
+
+/* Starfield background */
+@keyframes starfield {
+    from {
+        background-position: 0 0;
+    }
+
+    to {
+        background-position: -2000px -2000px;
+    }
+}
+
+body {
+    background: url('assets/background.png') repeat, radial-gradient(circle at top left, #0d0d2b, #000);
+    background-size: 2000px 2000px, cover;
+    animation: starfield 60s linear infinite;
+}
+
+/* Glassmorphic UI */
+#ui {
+    backdrop-filter: blur(10px) saturate(180%);
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    padding: 10px 20px;
+}
+
+body {
+    margin: 0;
+    overflow: hidden;
+    background: radial-gradient(circle at top left, #0d0d2b, #000);
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+}
+
+#gameCanvas {
+    display: block;
+    width: 100vw;
+    height: 100vh;
+    background: transparent;
+}
+
+#ui {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 20px;
+    font-size: 1.2rem;
+    text-shadow: 0 0 5px #00f;
+}
