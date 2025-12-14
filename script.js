@@ -31,6 +31,8 @@ let bullets = [];
 let enemies = [];
 let score = 0;
 let keys = {};
+// Particle system for explosions
+let particles = [];
 
 // Input handling
 window.addEventListener('keydown', e => { keys[e.key] = true; });
@@ -61,6 +63,14 @@ function update() {
   // Keep within bounds
   player.x = Math.max(0, Math.min(GAME_WIDTH - player.width, player.x));
   player.y = Math.max(0, Math.min(GAME_HEIGHT - player.height, player.y));
+
+  // Update particles (explosions)
+  particles.forEach(p => {
+    p.x += p.vx;
+    p.y += p.vy;
+    p.life--;
+  });
+  particles = particles.filter(p => p.life > 0);
 
   // Shooting (Space)
   if (keys[' '] && bullets.length < 5) {
@@ -102,6 +112,8 @@ function update() {
     bullets.forEach((b, bi) => {
       if (rectIntersect(b, e)) {
         score += 10;
+        // Trigger explosion effect
+        createExplosion(e.x + e.width / 2, e.y + e.height / 2);
         enemies.splice(ei, 1);
         bullets.splice(bi, 1);
         updateScoreUI();
@@ -119,6 +131,24 @@ function update() {
 function rectIntersect(a, b) {
   return a.x < b.x + b.width && a.x + a.width > b.x && a.y < b.y + b.height && a.y + a.height > b.y;
 }
+
+// Create a simple blast effect at (x, y)
+function createExplosion(x, y) {
+  const particleCount = 20;
+  for (let i = 0; i < particleCount; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const speed = Math.random() * 3 + 1;
+    particles.push({
+      x: x,
+      y: y,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed,
+      life: Math.random() * 30 + 20,
+      color: 'rgba(255,200,0,' + (Math.random() * 0.5 + 0.5) + ')'
+    });
+  }
+}
+
 
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -155,6 +185,13 @@ function draw() {
     ctx.shadowColor = b.color;
     ctx.fillRect(b.x, b.y, b.width, b.height);
     ctx.shadowBlur = 0;
+  });
+  // Draw particles (explosions)
+  particles.forEach(p => {
+    ctx.fillStyle = p.color;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+    ctx.fill();
   });
 }
 
