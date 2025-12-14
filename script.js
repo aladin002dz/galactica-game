@@ -207,7 +207,7 @@ function updateScoreUI() {
 }
 function updateLivesUI() {
   const livesEl = document.getElementById('lives');
-  if (livesEl) livesEl.textContent = 'Lives: ' + player.lives;
+  if (livesEl) livesEl.textContent = 'Lives: ' + '❤️'.repeat(Math.max(0, player.lives));
 }
 function resetGame() {
   player.lives = 3;
@@ -217,6 +217,10 @@ function resetGame() {
   updateScoreUI();
   updateLivesUI();
 }
+
+// Initialize UI
+updateScoreUI();
+updateLivesUI();
 
 // Start loop
 requestAnimationFrame(gameLoop);
