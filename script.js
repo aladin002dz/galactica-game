@@ -1,23 +1,30 @@
-// script.js - Simple Galactica game
+// script.js - Galactica Game
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
-// Set canvas size to fill viewport
+// Fixed game resolution
+const GAME_WIDTH = 800;
+const GAME_HEIGHT = 600;
+
 function resizeCanvas() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
+  canvas.width = GAME_WIDTH;
+  canvas.height = GAME_HEIGHT;
 }
-window.addEventListener('resize', resizeCanvas);
 resizeCanvas();
+
+// Load assets
+const playerImg = new Image();
+playerImg.src = 'assets/player.png';
+const enemyImg = new Image();
+enemyImg.src = 'assets/enemy.png';
 
 // Game state
 let player = {
-  x: canvas.width / 2,
-  y: canvas.height - 60,
-  width: 40,
-  height: 60,
+  x: GAME_WIDTH / 2 - 25,
+  y: GAME_HEIGHT - 80,
+  width: 50,
+  height: 50,
   speed: 5,
-  color: '#0ff',
   lives: 3,
 };
 let bullets = [];
@@ -30,29 +37,42 @@ window.addEventListener('keydown', e => { keys[e.key] = true; });
 window.addEventListener('keyup', e => { keys[e.key] = false; });
 
 function spawnEnemy() {
-  const size = 40;
-  const x = Math.random() * (canvas.width - size);
-  enemies.push({ x, y: -size, width: size, height: size, speed: 2 + Math.random() * 2, color: '#f00' });
+  const size = 50;
+  const x = Math.random() * (GAME_WIDTH - size);
+  enemies.push({
+    x,
+    y: -size,
+    width: size,
+    height: size,
+    speed: 2 + Math.random() * 2
+  });
 }
 
 let enemySpawnTimer = 0;
 const enemySpawnInterval = 90; // frames
 
 function update() {
-  // Player movement (arrow keys or WASD)
+  // Player movement
   if (keys['ArrowLeft'] || keys['a']) player.x -= player.speed;
   if (keys['ArrowRight'] || keys['d']) player.x += player.speed;
   if (keys['ArrowUp'] || keys['w']) player.y -= player.speed;
   if (keys['ArrowDown'] || keys['s']) player.y += player.speed;
+
   // Keep within bounds
-  player.x = Math.max(0, Math.min(canvas.width - player.width, player.x));
-  player.y = Math.max(0, Math.min(canvas.height - player.height, player.y));
+  player.x = Math.max(0, Math.min(GAME_WIDTH - player.width, player.x));
+  player.y = Math.max(0, Math.min(GAME_HEIGHT - player.height, player.y));
 
   // Shooting (Space)
   if (keys[' '] && bullets.length < 5) {
-    bullets.push({ x: player.x + player.width / 2 - 2, y: player.y, width: 4, height: 10, speed: 7, color: '#ff0' });
-    // simple debounce
-    keys[' '] = false;
+    bullets.push({
+      x: player.x + player.width / 2 - 2,
+      y: player.y,
+      width: 4,
+      height: 15,
+      speed: 10,
+      color: '#0ff'
+    });
+    keys[' '] = false; // simple debounce
   }
 
   // Update bullets
@@ -68,7 +88,7 @@ function update() {
 
   // Update enemies
   enemies.forEach(e => e.y += e.speed);
-  enemies = enemies.filter(e => e.y < canvas.height + e.height);
+  enemies = enemies.filter(e => e.y < GAME_HEIGHT + e.height);
 
   // Collision detection
   enemies.forEach((e, ei) => {
@@ -102,25 +122,39 @@ function rectIntersect(a, b) {
 
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  // Draw player (simple triangle ship)
-  ctx.fillStyle = player.color;
-  ctx.beginPath();
-  ctx.moveTo(player.x, player.y + player.height);
-  ctx.lineTo(player.x + player.width / 2, player.y);
-  ctx.lineTo(player.x + player.width, player.y + player.height);
-  ctx.closePath();
-  ctx.fill();
+
+  // Draw player
+  if (playerImg.complete) {
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = '#0ff';
+    ctx.drawImage(playerImg, player.x, player.y, player.width, player.height);
+    ctx.shadowBlur = 0;
+  } else {
+    // Fallback
+    ctx.fillStyle = '#0ff';
+    ctx.fillRect(player.x, player.y, player.width, player.height);
+  }
+
+  // Draw enemies
+  enemies.forEach(e => {
+    if (enemyImg.complete) {
+      ctx.shadowBlur = 10;
+      ctx.shadowColor = '#f00';
+      ctx.drawImage(enemyImg, e.x, e.y, e.width, e.height);
+      ctx.shadowBlur = 0;
+    } else {
+      ctx.fillStyle = '#f00';
+      ctx.fillRect(e.x, e.y, e.width, e.height);
+    }
+  });
 
   // Draw bullets
   bullets.forEach(b => {
     ctx.fillStyle = b.color;
+    ctx.shadowBlur = 5;
+    ctx.shadowColor = b.color;
     ctx.fillRect(b.x, b.y, b.width, b.height);
-  });
-
-  // Draw enemies (simple squares)
-  enemies.forEach(e => {
-    ctx.fillStyle = e.color;
-    ctx.fillRect(e.x, e.y, e.width, e.height);
+    ctx.shadowBlur = 0;
   });
 }
 
