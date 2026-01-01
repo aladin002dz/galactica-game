@@ -85,7 +85,7 @@ body::before {
     width: 100%;
     text-align: center;
     font-size: 0.8rem;
-    color: rgba(255, 255, 255, 0.3);
+    color: rgba(255, 255, 255, 0.8);
     font-family: 'Inter', sans-serif;
     pointer-events: none;
     z-index: 5;
